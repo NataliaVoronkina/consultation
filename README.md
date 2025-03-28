@@ -33,7 +33,7 @@ receive and answer medical questions, and receive a treatment decision.
 ### Clone the Repository
 
 ```sh
-git clone https://github.com/your-username/consultation-service.git
+git clone https://github.com/NataliaVoronkina/consultation.git
 ```
 
 ## Getting Started
