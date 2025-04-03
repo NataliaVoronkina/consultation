@@ -3,6 +3,7 @@ package com.heliosx.consultation.presentation;
 import com.heliosx.consultation.application.service.ConsultationService;
 import com.heliosx.consultation.presentation.dto.AnswerDto;
 import com.heliosx.consultation.presentation.dto.ConsultationDecisionDto;
+import com.heliosx.consultation.presentation.dto.ConsultationRequest;
 import com.heliosx.consultation.presentation.dto.QuestionDto;
 import com.heliosx.consultation.types.ConsultationUid;
 import jakarta.validation.Valid;
@@ -22,8 +23,8 @@ public class ConsultationController {
     private final ConsultationService consultationService;
 
     @PostMapping("/create")
-    public ConsultationUid startConsultation(@Valid @RequestBody UUID customerUid) {
-        return consultationService.startConsultation(customerUid);
+    public ConsultationUid startConsultation(@Valid @RequestBody ConsultationRequest consultationRequest) {
+        return consultationService.startConsultation(consultationRequest.customerUid());
     }
 
     @GetMapping("/{consultationUid}/questions")
@@ -36,7 +37,7 @@ public class ConsultationController {
         consultationService.saveAnswers(consultationUid, answers);
     }
 
-    @GetMapping("/decision/{consultationUid}")
+    @GetMapping("/{consultationUid}/decision")
     public ConsultationDecisionDto getConsultationDecision(@PathVariable UUID consultationUid) {
         return consultationService.getConsultationDecision(consultationUid);
     }

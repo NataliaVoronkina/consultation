@@ -5,6 +5,7 @@ import com.heliosx.consultation.domain.*;
 import com.heliosx.consultation.infrastructure.*;
 import com.heliosx.consultation.presentation.dto.AnswerDto;
 import com.heliosx.consultation.presentation.dto.ConsultationDecisionDto;
+import com.heliosx.consultation.presentation.dto.ConsultationRequest;
 import com.heliosx.consultation.types.ConsultationUid;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @AutoConfigureMockMvc
 class ConsultationControllerTest {
+
+    public static final String CUSTOMER_UID = "37a624d6-efc2-4b8a-b1c2-88503c54ee18";
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,7 +65,7 @@ class ConsultationControllerTest {
 
         // then
         Consultation consultation = consultationRepository.findByConsultationUid(consultationUid.getValue()).orElseThrow();
-        assertThat(consultation.getCustomer().getCustomerUid().toString()).isEqualTo("37a624d6-efc2-4b8a-b1c2-88503c54ee18");
+        assertThat(consultation.getCustomer().getCustomerUid().toString()).isEqualTo(CUSTOMER_UID);
         assertThat(consultation.getCustomer().getName()).isEqualTo("John");
         assertThat(consultation.getQuestions().size()).isEqualTo(2);
         assertThat(consultation.getQuestions().get(0).getQuestionText()).isEqualTo("Are you allergic?");
@@ -116,7 +119,7 @@ class ConsultationControllerTest {
         receiveResponseAndSaveAnswers(consultationUid);
 
         // when then
-        MvcResult mvcResult = mockMvc.perform(get("/api/v1/consultation/decision/" + consultationUid.getValue().toString()))
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/consultation/" + consultationUid.getValue().toString() + "/decision"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -156,14 +159,14 @@ class ConsultationControllerTest {
     }
 
     private ConsultationUid startConsultation() throws Exception {
-        UUID customerUid = UUID.fromString("37a624d6-efc2-4b8a-b1c2-88503c54ee18");
+        UUID customerUid = UUID.fromString(CUSTOMER_UID);
         Customer customer = Customer.builder()
                 .customerUid(customerUid)
                 .name("John")
                 .build();
         customerRepository.save(customer);
 
-        String customerUidContext = objectMapper.writeValueAsString(customerUid);
+        String customerUidContext = objectMapper.writeValueAsString(new ConsultationRequest(customerUid));
 
         MvcResult mvcResult = mockMvc.perform(post("/api/v1/consultation/create")
                         .contentType("application/json")
